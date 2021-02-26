@@ -25,7 +25,7 @@ for folder, subpage in zip(folders, subpages):
     for page in subpage:
         filename = f"{folder}/{page}/{page}.html"
         with open(filename, "r") as f:
-            stuffs = f.read().replace('h2', 'h3').split('<h3pyth>')
+            stuffs = f.read().replace('h2', 'h3').split('<h3>')
             for stuff in stuffs[1:]:
                 to_write = f"<h3>{stuff}"
                 name = f"{folder}_codex_{idx}.html"
