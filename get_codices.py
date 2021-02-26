@@ -50,6 +50,8 @@ def get_codices(content, extra_tags=None):
                     content.find_all('dl'),
                     content.find_all('div', class_='toc'),
                     content.find_all('figure'),
+                    content.find_all('table'),
+                    content.find_all('sup'),
                     content.find_all('div', style=["clear:both; margin: 0; padding: 0", 
                                                    "clear:right;", 
                                                    "clear:left;"]),
