@@ -48,7 +48,7 @@ def get_codices(content, extra_tags=None):
     for banner in banner_tags:
         banner.unwrap()
 
-    [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(tag.get_text(strip=True)) <= 0) and not tag.name == 'br' )]
+    [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(tag.get_text(strip=True)) <= 0) and not tag.name == 'br' and not tag.name == 'hr')]
 
     
     for element in content(text=lambda text: isinstance(text, Comment)):
