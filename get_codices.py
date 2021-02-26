@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup, Comment
 
 
-def get_content(url):
+def get_content(url, parser='html.parser'):
     """
     Returns a BeautifulSoup object containing the HTML content of the URL.
 
@@ -11,6 +11,8 @@ def get_content(url):
     ----------
     url : string
         URL of the page containing the codex entries.
+    parser : string
+        HTML parser to use.
 
     Returns
     -------
@@ -19,7 +21,7 @@ def get_content(url):
 
     """
     page = requests.get(url)
-    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = BeautifulSoup(page.content, parser)
     content = soup.find(class_="mw-parser-output")
 
     return content

@@ -16,18 +16,6 @@ base_folder = "da2"
 for subpage in two_subpages:
     url = f"{base_url}{subpage}"
     folder = f"{base_folder}/{subpage}"
-    content = get_content(url=url)
+    content = get_content(url=url, parser='lxml')
     codices = get_codices(content=content, extra_tags=['h2'])
     write_codices(codices=codices, folder=folder, page=subpage)
-
-
-item_subpage = "Items_(Dragon_Age_II)"
-item_folder = f"{base_folder}/{item_subpage}"
-
-with open('items_da2.html', 'r') as f:
-    item_page = f.read()
-    item_soup = BeautifulSoup(item_page, 'html.parser')
-item_content = item_soup.find(class_="mw-parser-output")
-
-item_codices = get_codices(content=item_content, extra_tags=['h2'])
-write_codices(codices=item_codices, folder=item_folder, page=item_subpage)
