@@ -17,15 +17,18 @@ def get_codices(content, extra_tags=None):
                     content.find_all('dl'),
                     content.find_all('div', class_='toc'),
                     content.find_all('figure'),
-                    content.find_all('div', style=["clear:both; margin: 0; padding: 0", "clear:right;", "clear:left;"]),
+                    content.find_all('div', style=["clear:both; margin: 0; padding: 0", 
+                                                   "clear:right;", 
+                                                   "clear:left;"]),
                     content.find_all('div', class_=["sp_banner"])
     ]
     if extra_tags is not None:
         for extra_tag in extra_tags:
             removed_tags.append(content.find_all(extra_tag))
-    banner_tags = content.find_all('div', class_=["sp sp_games sp_wide sp_id_dao", "sp sp_games sp_wide sp_id_da2", "sp sp_games sp_wide sp_id_dai",
+    banner_tags = content.find_all('div', class_=["sp sp_games sp_wide sp_id_dao", "sp sp_games sp_thin sp_id_dao",
                                                   "sp sp_games sp_wide sp_id_daoa", "sp sp_games sp_thin sp_id_daoa",
-                                                  "sp sp_games sp_thin sp_id_dao", "sp sp_games sp_thin sp_id_da2", "sp sp_games sp_thin sp_id_dai",
+                                                  "sp sp_games sp_wide sp_id_da2", "sp sp_games sp_thin sp_id_da2",
+                                                  "sp sp_games sp_wide sp_id_dai", "sp sp_games sp_thin sp_id_dai",
                                                   "sp_txt"])
 
     for a in a_tags:

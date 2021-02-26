@@ -4,10 +4,14 @@ from get_codices import get_content, get_codices, write_codices
 
 
 base_url = "https://dragonage.fandom.com/wiki/Codex:_"
-origins_subpages = ["Creatures", "Magic_and_Religion",
-                    "Characters_(Origins)", "Notes",
-                    "Items", "Culture_and_History",
-                    "Books_and_Songs", "Quest-Related"]
+origins_subpages = ["Creatures", 
+                    "Items", 
+                    "Magic_and_Religion",
+                    "Culture_and_History",
+                    "Characters_(Origins)", 
+                    "Books_and_Songs", 
+                    "Notes",
+                    "Quest-Related"]
 base_folder = "dao"
 
 for subpage in origins_subpages:
