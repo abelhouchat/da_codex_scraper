@@ -21,14 +21,14 @@ if not os.path.exists("codices/"):
     os.makedirs("codices/")
 
 for folder, subpage in zip(folders, subpages):
-    idx = 0
     for page in subpage:
+        idx = 0
         filename = f"{folder}/{page}/{page}.html"
         with open(filename, "r") as f:
             stuffs = f.read().replace('h2', 'h3').split('<h3>')
             for stuff in stuffs[1:]:
                 to_write = f"<h3>{stuff}"
-                name = f"{folder}_codex_{idx}.html"
+                name = f"{folder}_{page.split('_')[0].lower()}_{idx}.html"
                 idx += 1
                 with open(f"codices/{name}", "w") as f:
                     f.write(to_write)
