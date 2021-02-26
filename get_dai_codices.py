@@ -1,6 +1,5 @@
 import os
 import requests
-from bs4 import BeautifulSoup
 from get_codices import get_content, get_codices, write_codices
 
 base_url = "https://dragonage.fandom.com/wiki/Codex:_"
