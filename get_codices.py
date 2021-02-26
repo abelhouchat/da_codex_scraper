@@ -1,6 +1,6 @@
 import os
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 
 
 def get_content(url):
@@ -10,7 +10,7 @@ def get_content(url):
 
     return content
 
-def get_codices(content):
+def get_codices(content, extra_tags=None):
     p_tags = content.find_all('p')
     a_tags = content.find_all('a')
     removed_tags = [content.find_all('aside'),
@@ -20,6 +20,9 @@ def get_codices(content):
                     content.find_all('div', style=["clear:both; margin: 0; padding: 0", "clear:right;", "clear:left;"]),
                     content.find_all('div', class_=["sp_banner"])
     ]
+    if extra_tags is not None:
+        for extra_tag in extra_tags:
+            removed_tags.append(content.find_all(extra_tag))
     banner_tags = content.find_all('div', class_=["sp sp_games sp_wide sp_id_dao", "sp sp_games sp_wide sp_id_da2", "sp sp_games sp_wide sp_id_dai",
                                                   "sp sp_games sp_wide sp_id_daoa", "sp sp_games sp_thin sp_id_daoa",
                                                   "sp sp_games sp_thin sp_id_dao", "sp sp_games sp_thin sp_id_da2", "sp sp_games sp_thin sp_id_dai",
@@ -32,7 +35,7 @@ def get_codices(content):
             a.unwrap()
 
     for p in p_tags:
-        if 'Researched:' in str(p):
+        if "Researched:" in str(p) or "Resources found here:" in str(p):
             p.decompose()
 
     for tags in removed_tags:
@@ -43,7 +46,11 @@ def get_codices(content):
         banner.unwrap()
 
     [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(tag.get_text(strip=True)) <= 0) and not tag.name == 'br' )]
+
     
+    for element in content(text=lambda text: isinstance(text, Comment)):
+        element.extract()
+
     return content
 
 def write_codices(codices, folder, subpage):

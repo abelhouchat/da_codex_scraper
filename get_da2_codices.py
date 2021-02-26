@@ -14,7 +14,7 @@ for subpage in two_subpages:
     url = f"{base_url}{subpage}"
     folder = f"{base_folder}/{subpage}"
     content = get_content(url=url)
-    codices = get_codices(content=content)
+    codices = get_codices(content=content, extra_tags=['h2'])
     write_codices(codices=codices, folder=folder, subpage=subpage)
 
 
@@ -26,5 +26,5 @@ with open('items_da2.html', 'r') as f:
     item_soup = BeautifulSoup(item_page, 'html.parser')
 item_content = item_soup.find(class_="mw-parser-output")
 
-item_codices = get_codices(content=item_content)
+item_codices = get_codices(content=item_content, extra_tags=['h2'])
 write_codices(codices=item_codices, folder=item_folder, subpage=item_subpage)
