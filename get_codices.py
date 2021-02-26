@@ -4,6 +4,20 @@ from bs4 import BeautifulSoup, Comment
 
 
 def get_content(url):
+    """
+    Returns a BeautifulSoup object containing the HTML content of the URL.
+
+    Parameters
+    ----------
+    url : string
+        URL of the page containing the codex entries.
+
+    Returns
+    -------
+    content : BeautifulSoup
+        BeautifulSoup object containing the content of the URL.
+
+    """
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     content = soup.find(class_="mw-parser-output")
@@ -11,6 +25,25 @@ def get_content(url):
     return content
 
 def get_codices(content, extra_tags=None):
+    """
+    Returns a BeautifulSoup object containing just the codex entry text (and 
+    some formatting) contained in content.
+
+    Parameters
+    ----------
+    content : BeautifulSoup
+        BeautifulSoup object containing the codex entries.
+    extra_tags : list of str, optional
+        List containing additional tags that you want to remove from the codex 
+        entry HTML.
+
+    Returns
+    -------
+    content : BeautifulSoup
+        BeautifulSoup object containing only the formatted codex entry text, 
+        meaning no links or tables or other similar tags are included.
+
+    """
     p_tags = content.find_all('p')
     a_tags = content.find_all('a')
     removed_tags = [content.find_all('aside'),
@@ -56,12 +89,29 @@ def get_codices(content, extra_tags=None):
 
     return content
 
-def write_codices(codices, folder, subpage):
+def write_codices(codices, folder, page):
+    """
+    Writes the codex entries into a single HTML file.
+
+    Parameters
+    ----------
+    codices : BeautifulSoup
+        BeautifulSoup object containing the codex entries.
+    folder : str
+        The folder you want to write the codex HTML file into.
+    page : str
+        The name you want to give to the HTML file.
+
+    Returns
+    -------
+    None
+
+    """
     if not os.path.exists(folder):
         os.makedirs(folder)
     
-    with open(f"{folder}/{subpage}.html", "w") as f:
+    with open(f"{folder}/{page}.html", "w") as f:
         to_write = str(codices)
         if "sp_games" in to_write or "sp_txt" in to_write or "sp_banner" in to_write:
-            print("Check", subpage)
+            print("Check", page)
         f.write(to_write)

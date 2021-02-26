@@ -25,6 +25,8 @@ for folder, subpage in zip(folders, subpages):
         idx = 0
         filename = f"{folder}/{page}/{page}.html"
         with open(filename, "r") as f:
+            # Convert all <h2> tags to <h3> because I think it makes sense for 
+            # the hierarchy to go: game - <h1>, section - <h2>, entry - <h3>
             stuffs = f.read().replace('h2', 'h3').split('<h3>')
             for stuff in stuffs[1:]:
                 to_write = f"<h3>{stuff}"
