@@ -19,4 +19,4 @@ for subpage in inky_subpages:
     folder = f"{base_folder}/{subpage}"
     content = get_content(url=url)
     codices = get_codices(content=content)
-    write_codices(codices=codices, folder=folder, subpage=subpage)
+    write_codices(codices=codices, folder=folder, page=subpage)
