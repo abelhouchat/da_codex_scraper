@@ -27,9 +27,21 @@ for folder, subpage in zip(folders, subpages):
         with open(filename, "r") as f:
             # Convert all <h2> tags to <h3> because I think it makes sense for 
             # the hierarchy to go: game - <h1>, section - <h2>, entry - <h3>
-            stuffs = f.read().replace('h2', 'h3').split('<h3>')
+            stuffs = f.read()
+            stuffs = stuffs.replace('<hr />', '<hr>')
+            stuffs = stuffs.replace('<br />', '<br>')
+            stuffs = stuffs.replace('h2', 'h3')
+            if stuffs[-6:] == "</div>":
+                stuffs = stuffs[:-6]
+            stuffs = stuffs.split('<h3>')
             for stuff in stuffs[1:]:
-                to_write = f"<h3>{stuff}"
+                if 'class="mw-headline" id="Locked' in stuff or 'class="mw-headline" id="Bugs"' in stuff:
+                    continue
+                to_write = f"<h3>{stuff}".rstrip()
+                if to_write[-4:] == "<hr>":
+                    to_write = to_write[:-4].rstrip()
+                if to_write[-5:] == "</hr>":
+                    to_write = to_write[:-5].rstrip()
                 name = f"{folder}_{page.split('_')[0].lower()}_{idx}.html"
                 idx += 1
                 with open(f"codices/{name}", "w") as f:
