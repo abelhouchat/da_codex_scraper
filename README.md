@@ -12,9 +12,6 @@ the codex entries for that game, with HTML files separated by section. If you
 want, you can then run `split_codices.py` to split each codex entry into its 
 own HTML file.
 
-These scripts aren't perfect. When I ran them, I could not get all the Items 
-codex entries for Dragon Age II in the normal way, so I had to download the 
-HTML file for that page and rerun the scraper on the downloaded file. Running 
-`split_codices.py` also deletes the Grey Warden Letters codex entry from Dragon 
-Age II, likely because it uses `<h2>` tags where all other Dragon Age II codex 
-entries use `<h3>` tags.
+These scripts aren't perfect. Running `split_codices.py` deletes the Grey 
+Warden Letters codex entry from Dragon Age II, likely because it uses `<h2>` 
+tags where all other Dragon Age II codex entries use `<h3>` tags.
