@@ -75,7 +75,7 @@ def get_codices(content, extra_tags=None):
             a.unwrap()
 
     for p in p_tags:
-        if "Researched:" in str(p) or "Resources found here:" in str(p):
+        if "Researched:" in str(p) or "Resources found here:" in str(p) or "mw-ext-cite-error" in str(p):
             p.decompose()
 
     for tags in removed_tags:
