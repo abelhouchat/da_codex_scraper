@@ -22,6 +22,7 @@ def get_content(url, parser='html.parser'):
     """
     page = requests.get(url)
     soup = BeautifulSoup(page.content, parser)
+    # Actual codex content is located under the "mw-parser-output" div
     content = soup.find(class_="mw-parser-output")
 
     return content
@@ -48,6 +49,7 @@ def get_codices(content, extra_tags=None):
     """
     p_tags = content.find_all('p')
     a_tags = content.find_all('a')
+    # Tags we want to remove completely from the HTML files
     removed_tags = [content.find_all('aside'),
                     content.find_all('dl'),
                     content.find_all('div', class_='toc'),
@@ -62,6 +64,7 @@ def get_codices(content, extra_tags=None):
     if extra_tags is not None:
         for extra_tag in extra_tags:
             removed_tags.append(content.find_all(extra_tag))
+    # Tags for spoilers; we want to remove the spoiler banner but keep the text that is spoilered"
     banner_tags = content.find_all('div', class_=["sp sp_games sp_wide sp_id_dao", "sp sp_games sp_thin sp_id_dao",
                                                   "sp sp_games sp_wide sp_id_daoa", "sp sp_games sp_thin sp_id_daoa",
                                                   "sp sp_games sp_wide sp_id_da2", "sp sp_games sp_thin sp_id_da2",
@@ -69,12 +72,15 @@ def get_codices(content, extra_tags=None):
                                                   "sp_txt"])
 
     for a in a_tags:
+        # Completely remove tag if there is no text content
         if a.string is None:
             a.decompose()
+        # Retain only the text otherwise
         else:
             a.unwrap()
 
     for p in p_tags:
+        # Don't want to keep error text or text that is only relevant to gameplay
         if "Researched:" in str(p) or "Resources found here:" in str(p) or "mw-ext-cite-error" in str(p):
             p.decompose()
 
@@ -85,9 +91,10 @@ def get_codices(content, extra_tags=None):
     for banner in banner_tags:
         banner.unwrap()
 
+    # This (supposedly) gets rid of all other empty tags without removing important formatting tags
     [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(tag.get_text(strip=True)) <= 0) and not tag.name == 'br' and not tag.name == 'hr')]
 
-    
+    # This gets rid of the comments at the end of each page's HTML
     for element in content(text=lambda text: isinstance(text, Comment)):
         element.extract()
 
@@ -116,6 +123,7 @@ def write_codices(codices, folder, page):
     
     with open(f"{folder}/{page}.html", "w") as f:
         to_write = str(codices)
+        # If we missed spoiler warnings, notify the user to check the page
         if "sp_games" in to_write or "sp_txt" in to_write or "sp_banner" in to_write:
             print("Check", page)
         f.write(to_write)
