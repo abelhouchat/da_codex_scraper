@@ -73,7 +73,7 @@ def get_codices(content, extra_tags=None):
 
     for a in a_tags:
         # Completely remove tag if there is no text content
-        if a.string is None:
+        if a.text == '':
             a.decompose()
         # Retain only the text otherwise
         else:
