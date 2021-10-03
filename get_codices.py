@@ -27,6 +27,7 @@ def get_content(url, parser='html.parser'):
 
     return content
 
+
 def get_codices(content, extra_tags=None):
     """
     Returns a BeautifulSoup object containing just the codex entry text (and 
@@ -56,11 +57,11 @@ def get_codices(content, extra_tags=None):
                     content.find_all('figure'),
                     content.find_all('table'),
                     content.find_all('sup'),
-                    content.find_all('div', style=["clear:both; margin: 0; padding: 0", 
-                                                   "clear:right;", 
+                    content.find_all('div', style=["clear:both; margin: 0; padding: 0",
+                                                   "clear:right;",
                                                    "clear:left;"]),
                     content.find_all('div', class_=["sp_banner"])
-    ]
+                    ]
     if extra_tags is not None:
         for extra_tag in extra_tags:
             removed_tags.append(content.find_all(extra_tag))
@@ -92,13 +93,15 @@ def get_codices(content, extra_tags=None):
         banner.unwrap()
 
     # This (supposedly) gets rid of all other empty tags without removing important formatting tags
-    [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(tag.get_text(strip=True)) <= 0) and not tag.name == 'br' and not tag.name == 'hr')]
+    [x.decompose() for x in content.find_all(lambda tag: (not tag.contents or len(
+        tag.get_text(strip=True)) <= 0) and not tag.name == 'br' and not tag.name == 'hr')]
 
     # This gets rid of the comments at the end of each page's HTML
     for element in content(text=lambda text: isinstance(text, Comment)):
         element.extract()
 
     return content
+
 
 def write_codices(codices, folder, page):
     """
@@ -120,7 +123,7 @@ def write_codices(codices, folder, page):
     """
     if not os.path.exists(folder):
         os.makedirs(folder)
-    
+
     with open(f"{folder}/{page}.html", "w") as f:
         to_write = str(codices)
         # If we missed spoiler warnings, notify the user to check the page

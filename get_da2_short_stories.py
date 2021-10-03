@@ -9,7 +9,7 @@ pages = ["Anders_(short_story)",
          "Merrill_(short_story)",
          "Sebastian_(short_story)",
          "Varric_(short_story)"
-]
+         ]
 story_urls = [f"{base_url}{page}" for page in pages]
 
 for url, page in zip(story_urls, pages):

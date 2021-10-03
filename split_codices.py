@@ -22,8 +22,9 @@ def replace_substrings(input_string, replacements):
     """
     for replaced, replacer in replacements:
         input_string = input_string.replace(replaced, replacer)
-    
+
     return input_string
+
 
 def remove_last_chars(input_string, last_chars):
     """
@@ -61,16 +62,16 @@ if __name__ == "__main__":
                     "Characters_(Dragon_Age_II)", "Letters_and_Notes",
                     "Notes_(Dragon_Age_II)"]
     inky_subpages = ["Characters_(Inquisition)", "Crafting_Materials",
-                    "Creatures_(Inquisition)", "Groups",
-                    "History", "Letters_%26_Notes",
-                    "Magic", "Places_(Inquisition)", 
-                    "Tales"]
+                     "Creatures_(Inquisition)", "Groups",
+                     "History", "Letters_%26_Notes",
+                     "Magic", "Places_(Inquisition)",
+                     "Tales"]
     all_subpages = [origins_subpages, two_subpages, inky_subpages]
     folders = ["dao", "da2", "dai"]
 
-    # To make it easier to clean up later, replace <hr /> and <br /> with tags that 
-    # are functionally the same. We also want to convert all <h2> tags to <h3> 
-    # because I think it makes sense for the hierarchy to go: 
+    # To make it easier to clean up later, replace <hr /> and <br /> with tags that
+    # are functionally the same. We also want to convert all <h2> tags to <h3>
+    # because I think it makes sense for the hierarchy to go:
     # game - <h1>, section - <h2>, entry - <h3>
     replacements = [('<hr />', '<hr>'), ('<br />', '<br>'), ('h2', 'h3')]
 
@@ -83,9 +84,11 @@ if __name__ == "__main__":
             filename = f"{folder}/{page}/{page}.html"
             with open(filename, "r") as f:
                 stuffs = f.read().rstrip()
-                stuffs = replace_substrings(input_string=stuffs, replacements=replacements)
+                stuffs = replace_substrings(
+                    input_string=stuffs, replacements=replacements)
                 # Codex pages end with a dangling </div>, so get rid of it
-                stuffs = remove_last_chars(input_string=stuffs, last_chars="</div>")
+                stuffs = remove_last_chars(
+                    input_string=stuffs, last_chars="</div>")
                 # Split each codex entry into its own string
                 stuffs = stuffs.split('<h3>')
                 # The first element is intro stuff, we ignore it
@@ -94,10 +97,12 @@ if __name__ == "__main__":
                     if 'class="mw-headline" id="Locked' in stuff or 'class="mw-headline" id="Bugs"' in stuff:
                         continue
                     to_write = f"<h3>{stuff}".rstrip()
-                    # Get rid of terminal rows and dangling </hr>, which are usually 
+                    # Get rid of terminal rows and dangling </hr>, which are usually
                     # leftovers of removing gameplay-only parts of the codex entry
-                    to_write = remove_last_chars(input_string=to_write, last_chars="<hr>")
-                    to_write = remove_last_chars(input_string=to_write, last_chars="</hr>")
+                    to_write = remove_last_chars(
+                        input_string=to_write, last_chars="<hr>")
+                    to_write = remove_last_chars(
+                        input_string=to_write, last_chars="</hr>")
                     name = f"{folder}_{page.split('_')[0].lower()}_{idx}.html"
                     idx += 1
                     with open(f"codices/{name}", "w") as f:

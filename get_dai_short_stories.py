@@ -5,7 +5,7 @@ base_url = "https://dragonage.fandom.com/wiki/"
 pages = ["Short_Story:_Paper_%26_Steel",
          "Short_Story:_Paying_the_Ferryman",
          "Short_Story:_The_Riddle_of_Truth"
-]
+         ]
 story_urls = [f"{base_url}{page}" for page in pages]
 
 for url, page in zip(story_urls, pages):

@@ -1,16 +1,14 @@
-import os
-import requests
 from get_codices import get_content, get_codices, write_codices
 
 base_url = "https://dragonage.fandom.com/wiki/Codex:_"
-inky_subpages = ["Characters_(Inquisition)", 
+inky_subpages = ["Characters_(Inquisition)",
                  "Crafting_Materials",
-                 "Creatures_(Inquisition)", 
+                 "Creatures_(Inquisition)",
                  "Groups",
-                 "History", 
+                 "History",
                  "Letters_%26_Notes",
-                 "Magic", 
-                 "Places_(Inquisition)", 
+                 "Magic",
+                 "Places_(Inquisition)",
                  "Tales"]
 base_folder = "dai"
 
