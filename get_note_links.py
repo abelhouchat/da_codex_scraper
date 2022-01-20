@@ -37,11 +37,12 @@ for url in note_urls:
     print("Getting", note_name)
     folder = "dai/notes_(non-codex)"
     content = get_content(url=url)
-    to_remove = [content.find_all(class_="mw-editsection"),
-                 content.find_all(class_="mw-editsection-bracket"),
-                 content.find_all(class_="mw-editsection-divider"),
-                 content.find_all(class_="mw-references-wrap")
-                 ]
+    to_remove = [
+        content.find_all(class_="mw-editsection"),
+        content.find_all(class_="mw-editsection-bracket"),
+        content.find_all(class_="mw-editsection-divider"),
+        content.find_all(class_="mw-references-wrap"),
+    ]
     for tags in to_remove:
         for tag in tags:
             tag.decompose()
@@ -53,8 +54,13 @@ for url in note_urls:
 # are functionally the same. We also want to convert all <h2> tags to <h3>
 # because I think it makes sense for the hierarchy to go:
 # game - <h1>, section - <h2>, entry - <h3>
-replacements = [('<hr />', '<hr>'), ('<hr/>', '<hr>'),
-                ('<br />', '<br>'), ('<br/>', '<br>'), ('h2', 'h3')]
+replacements = [
+    ("<hr />", "<hr>"),
+    ("<hr/>", "<hr>"),
+    ("<br />", "<br>"),
+    ("<br/>", "<br>"),
+    ("h2", "h3"),
+]
 folder = "dai"
 
 if not os.path.exists("notes_(non-codex)/"):
@@ -65,12 +71,14 @@ for page in note_names:
     filename = f"{folder}/notes_(non-codex)/{page}.html"
     with open(filename, "r") as f:
         stuffs = f.read().rstrip()
-        stuffs = replace_substrings(
-            input_string=stuffs, replacements=replacements)
+        stuffs = replace_substrings(input_string=stuffs, replacements=replacements)
         # Codex pages end with a dangling </div>, so get rid of it
         stuff = remove_last_chars(input_string=stuffs, last_chars="</div>")
         # Skip over entries that just say "Locked" or "Bugs"
-        if 'class="mw-headline" id="Locked' in stuff or 'class="mw-headline" id="Bugs"' in stuff:
+        if (
+            'class="mw-headline" id="Locked' in stuff
+            or 'class="mw-headline" id="Bugs"' in stuff
+        ):
             continue
         to_write = stuff.rstrip()
         # Get rid of terminal rows and dangling </hr>, which are usually

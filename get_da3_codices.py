@@ -3,15 +3,17 @@ from get_codices import get_codices, get_content, write_codices
 
 def main():
     base_url = "https://dragonage.fandom.com/wiki/Codex:_"
-    inky_subpages = ["Characters_(Inquisition)",
-                     "Crafting_Materials",
-                     "Creatures_(Inquisition)",
-                     "Groups",
-                     "History",
-                     "Letters_%26_Notes",
-                     "Magic",
-                     "Places_(Inquisition)",
-                     "Tales"]
+    inky_subpages = [
+        "Characters_(Inquisition)",
+        "Crafting_Materials",
+        "Creatures_(Inquisition)",
+        "Groups",
+        "History",
+        "Letters_%26_Notes",
+        "Magic",
+        "Places_(Inquisition)",
+        "Tales",
+    ]
     base_folder = "da3"
 
     for subpage in inky_subpages:

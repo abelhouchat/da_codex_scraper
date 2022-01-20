@@ -10,8 +10,8 @@ def replace_substrings(input_string, replacements):
     input_string : string
         The string to perform replacement on.
     replacements : list of tuple of str
-        List of pairs of substrings to replace and replace with. The 
-        first element in each tuple is the substring to replace, and 
+        List of pairs of substrings to replace and replace with. The
+        first element in each tuple is the substring to replace, and
         the second is the substring to replace the first element with.
 
     Returns
@@ -28,7 +28,7 @@ def replace_substrings(input_string, replacements):
 
 def remove_last_chars(input_string, last_chars):
     """
-    If the last characters in a string are known to be certain characters, 
+    If the last characters in a string are known to be certain characters,
     remove these last characters and any trailing whitespace.
 
     Parameters
@@ -53,19 +53,36 @@ def remove_last_chars(input_string, last_chars):
 
 
 if __name__ == "__main__":
-    origins_subpages = ["Creatures", "Magic_and_Religion",
-                        "Characters_(Origins)", "Notes",
-                        "Items", "Culture_and_History",
-                        "Books_and_Songs", "Quest-Related"]
-    two_subpages = ["Creatures_(Dragon_Age_II)", "Items_(Dragon_Age_II)",
-                    "Places", "Lore",
-                    "Characters_(Dragon_Age_II)", "Letters_and_Notes",
-                    "Notes_(Dragon_Age_II)"]
-    inky_subpages = ["Characters_(Inquisition)", "Crafting_Materials",
-                     "Creatures_(Inquisition)", "Groups",
-                     "History", "Letters_%26_Notes",
-                     "Magic", "Places_(Inquisition)",
-                     "Tales"]
+    origins_subpages = [
+        "Creatures",
+        "Magic_and_Religion",
+        "Characters_(Origins)",
+        "Notes",
+        "Items",
+        "Culture_and_History",
+        "Books_and_Songs",
+        "Quest-Related",
+    ]
+    two_subpages = [
+        "Creatures_(Dragon_Age_II)",
+        "Items_(Dragon_Age_II)",
+        "Places",
+        "Lore",
+        "Characters_(Dragon_Age_II)",
+        "Letters_and_Notes",
+        "Notes_(Dragon_Age_II)",
+    ]
+    inky_subpages = [
+        "Characters_(Inquisition)",
+        "Crafting_Materials",
+        "Creatures_(Inquisition)",
+        "Groups",
+        "History",
+        "Letters_%26_Notes",
+        "Magic",
+        "Places_(Inquisition)",
+        "Tales",
+    ]
     all_subpages = [origins_subpages, two_subpages, inky_subpages]
     folders = ["da1", "da2", "da3"]
 
@@ -73,7 +90,7 @@ if __name__ == "__main__":
     # are functionally the same. We also want to convert all <h2> tags to <h3>
     # because I think it makes sense for the hierarchy to go:
     # game - <h1>, section - <h2>, entry - <h3>
-    replacements = [('<hr />', '<hr>'), ('<br />', '<br>'), ('h2', 'h3')]
+    replacements = [("<hr />", "<hr>"), ("<br />", "<br>"), ("h2", "h3")]
 
     if not os.path.exists("codices/"):
         os.makedirs("codices/")
@@ -85,24 +102,29 @@ if __name__ == "__main__":
             with open(filename, "r") as f:
                 stuffs = f.read().rstrip()
                 stuffs = replace_substrings(
-                    input_string=stuffs, replacements=replacements)
+                    input_string=stuffs, replacements=replacements
+                )
                 # Codex pages end with a dangling </div>, so get rid of it
-                stuffs = remove_last_chars(
-                    input_string=stuffs, last_chars="</div>")
+                stuffs = remove_last_chars(input_string=stuffs, last_chars="</div>")
                 # Split each codex entry into its own string
-                stuffs = stuffs.split('<h3>')
+                stuffs = stuffs.split("<h3>")
                 # The first element is intro stuff, we ignore it
                 for stuff in stuffs[1:]:
                     # Skip over entries that just say "Locked" or "Bugs"
-                    if 'class="mw-headline" id="Locked' in stuff or 'class="mw-headline" id="Bugs"' in stuff:
+                    if (
+                        'class="mw-headline" id="Locked' in stuff
+                        or 'class="mw-headline" id="Bugs"' in stuff
+                    ):
                         continue
                     to_write = f"<h3>{stuff}".rstrip()
                     # Get rid of terminal rows and dangling </hr>, which are usually
                     # leftovers of removing gameplay-only parts of the codex entry
                     to_write = remove_last_chars(
-                        input_string=to_write, last_chars="<hr>")
+                        input_string=to_write, last_chars="<hr>"
+                    )
                     to_write = remove_last_chars(
-                        input_string=to_write, last_chars="</hr>")
+                        input_string=to_write, last_chars="</hr>"
+                    )
                     name = f"{folder}_{page.split('_')[0].lower()}_{idx}.html"
                     idx += 1
                     with open(f"codices/{name}", "w") as f:
