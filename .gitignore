@@ -1,8 +1,9 @@
+.venv/
 .vscode/
 __pycache__/
-dao/
+da1/
 da2/
-dai/
+da3/
 da4/
 codices/
 notes*

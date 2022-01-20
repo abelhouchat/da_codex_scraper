@@ -1,10 +1,12 @@
 import os
-import requests
 import string
 from collections import OrderedDict
+
+import requests
 from bs4 import BeautifulSoup
-from get_codices import get_content, get_codices, write_codices
-from split_codices import replace_substrings, remove_last_chars
+
+from get_codices import get_codices, get_content, write_codices
+from split_codices import remove_last_chars, replace_substrings
 
 
 base_url = "https://dragonage.fandom.com"

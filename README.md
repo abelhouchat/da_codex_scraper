@@ -5,6 +5,8 @@ Personal project to get all the codex entries from the
 
 ## Requirements
  * [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+ * [lxml](https://lxml.de/)
+ * [requests](https://docs.python-requests.org/en/latest/)
 
 ## Usage
 Run one of the `get_da*_codices.py` files to create a folder containing all 

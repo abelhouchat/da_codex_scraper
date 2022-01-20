@@ -67,7 +67,7 @@ if __name__ == "__main__":
                      "Magic", "Places_(Inquisition)",
                      "Tales"]
     all_subpages = [origins_subpages, two_subpages, inky_subpages]
-    folders = ["dao", "da2", "dai"]
+    folders = ["da1", "da2", "da3"]
 
     # To make it easier to clean up later, replace <hr /> and <br /> with tags that
     # are functionally the same. We also want to convert all <h2> tags to <h3>
