@@ -1,35 +1,13 @@
 import os
+from typing import List, Optional
 
 import requests
 from bs4 import BeautifulSoup, Comment
 
 
-def get_content(url, parser="html.parser"):
-    """
-    Returns a BeautifulSoup object containing the HTML content of the URL.
-
-    Parameters
-    ----------
-    url : string
-        URL of the page containing the codex entries.
-    parser : string
-        HTML parser to use.
-
-    Returns
-    -------
-    content : BeautifulSoup
-        BeautifulSoup object containing the content of the URL.
-
-    """
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, parser)
-    # Actual codex content is located under the "mw-parser-output" div
-    content = soup.find(class_="mw-parser-output")
-
-    return content
-
-
-def get_codices(content, extra_tags=None):
+def get_codices(
+    content: BeautifulSoup, extra_tags: Optional[List[str]] = None
+) -> BeautifulSoup:
     """
     Returns a BeautifulSoup object containing just the codex entry text (and
     some formatting) contained in content.
@@ -38,9 +16,9 @@ def get_codices(content, extra_tags=None):
     ----------
     content : BeautifulSoup
         BeautifulSoup object containing the codex entries.
-    extra_tags : list of str, optional
+    extra_tags : List[str], Optional
         List containing additional tags that you want to remove from the codex
-        entry HTML.
+        entry HTML. Default value is None.
 
     Returns
     -------
@@ -125,7 +103,32 @@ def get_codices(content, extra_tags=None):
     return content
 
 
-def write_codices(codices, folder, page):
+def get_content(url: str, parser: str = "html.parser") -> BeautifulSoup:
+    """
+    Returns a BeautifulSoup object containing the HTML content of the URL.
+
+    Parameters
+    ----------
+    url : str
+        URL of the page containing the codex entries.
+    parser : str
+        HTML parser to use.
+
+    Returns
+    -------
+    content : BeautifulSoup
+        BeautifulSoup object containing the content of the URL.
+
+    """
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, parser)
+    # Actual codex content is located under the "mw-parser-output" div
+    content = soup.find(class_="mw-parser-output")
+
+    return content
+
+
+def write_codices(codices: BeautifulSoup, folder: str, page: str) -> None:
     """
     Writes the codex entries into a single HTML file.
 
