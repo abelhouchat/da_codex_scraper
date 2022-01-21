@@ -1,4 +1,4 @@
-from codices import get_codices
+from scraping.codices import get_codices
 
 
 def main():

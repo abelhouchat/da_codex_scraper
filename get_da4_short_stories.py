@@ -1,23 +1,18 @@
-from codices import get_codices, get_page_content, write_codices
+from scraping.texts import get_texts
 
 
 def main():
-    base_url = "https://dragonage.fandom.com/wiki/"
-    pages = [
-        "Short_Story:_Minrathous_Shadows",
-        "Short_Story:_The_Next_One",
-        "Short_Story:_Ruins_of_Reality",
-        "Short_Story:_The_Wake",
-        "Short_Story:_Won't_Know_When",
-        "Short_Story:_The_Eternal_Flame",
-    ]
-    story_urls = [f"{base_url}{page}" for page in pages]
+    game = "da4"
+    base_url = "https://dragonage.fandom.com"
+    full_url = f"{base_url}/wiki/Category:Dragon_Age_4_short_stories"
+    content_prefix = "Short Story: "
+    content_type = "texts"
+    category = "Short Stories"
+    header_ids = ["Story"]
 
-    for url, page in zip(story_urls, pages):
-        folder = "da4/short_stories"
-        content = get_page_content(url=url)
-        codices = get_codices(content=content)
-        write_codices(codices=codices, folder=folder, page=page)
+    get_texts(
+        base_url, full_url, game, content_type, category, content_prefix, header_ids
+    )
 
 
 if __name__ == "__main__":

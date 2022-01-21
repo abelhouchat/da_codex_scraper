@@ -1,3 +1,4 @@
+import os
 import string
 from collections import OrderedDict
 from typing import List, Optional, Tuple
@@ -83,7 +84,9 @@ def get_letter_pages(base_url: str, letter_url: str) -> List[str]:
 
     for link in soup.find_all("a", class_="category-page__member-link"):
         suburl = str(link.get("href"))
-        letter_pages.append(f"{base_url}{suburl}")
+        # Don't want suburls that just point to other Category pages.
+        if "wiki/Category:" not in suburl:
+            letter_pages.append(f"{base_url}{suburl}")
 
     letter_pages = list(OrderedDict.fromkeys(letter_pages))
 
@@ -108,11 +111,20 @@ def get_page_content(url: str, parser: str = "html.parser") -> BeautifulSoup:
 
     """
     page = requests.get(url)
-    soup = BeautifulSoup(page.content, parser)
-    # Actual codex content is located under the "mw-parser-output" div
-    content = soup.find(class_="mw-parser-output")
+    content = BeautifulSoup(page.content, parser)
 
     return content
+
+
+def get_all_pages(base_url: str, full_url: str) -> List[str]:
+    alphabetical_links = get_alphabetized_links(full_url)
+
+    all_urls = []
+
+    for link in alphabetical_links:
+        all_urls += get_letter_pages(base_url, link)
+
+    return all_urls
 
 
 def get_textual_content(
@@ -137,6 +149,9 @@ def get_textual_content(
         meaning no links or tables or other similar tags are included.
 
     """
+    # Actual codex content is located under the "mw-parser-output" div
+    content = content.find(class_="mw-parser-output")
+
     p_tags = content.find_all("p")
     a_tags = content.find_all("a")
     # Tags we want to remove completely from the HTML files
@@ -262,3 +277,56 @@ def replace_substrings(input_string: str, replacements: List[Tuple[str]]) -> str
         input_string = input_string.replace(replaced, replacer)
 
     return input_string
+
+
+def prep_for_writing(
+    content: BeautifulSoup,
+    ids_to_skip: Optional[List[str]] = None,
+) -> List[str]:
+    entries_to_write = []
+
+    replacements = [
+        ("<hr />", "<hr>"),
+        ("<hr/>", "<hr>"),
+        ("<br />", "<br>"),
+        ("<br/>", "<br>"),
+        ("h2", "h3"),
+    ]
+
+    content_str = str(content).rstrip()
+    content_str = replace_substrings(
+        input_string=content_str, replacements=replacements
+    )
+    # Some pages end with a dangling </div>, so get rid of it
+    content_str = remove_last_chars(input_string=content_str, last_chars="</div>")
+    # Split each codex entry into its own string
+    content_split = content_str.split("<h3>")
+    # The first element is intro stuff, we ignore it
+    for content_piece in content_split[1:]:
+        skip = False
+        for id in ids_to_skip:
+            if f'class="mw-headline" id="{id}' in content_piece:
+                skip = True
+        if skip:
+            continue
+
+        to_write = f"<h3>{content_piece}".rstrip()
+        # Get rid of terminal rows and dangling </hr>, which are usually
+        # leftovers of removing gameplay-only parts of the codex entry
+        to_write = remove_last_chars(input_string=to_write, last_chars="<hr>")
+        to_write = remove_last_chars(input_string=to_write, last_chars="</hr>")
+
+        entries_to_write.append(to_write)
+
+    return entries_to_write
+
+
+def write_entries(entries: List[str], game: str, content_type: str, category: str):
+    folder = f"{game}/{content_type}"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    for idx, entry in enumerate(entries):
+        filename = f"{game}_{category.split('_')[0].lower()}_{idx}.html"
+        with open(f"{folder}/{filename}", "w") as f:
+            f.write(entry)
