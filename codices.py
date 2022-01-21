@@ -1,11 +1,12 @@
 import os
 from typing import List, Optional
 
-import requests
 from bs4 import BeautifulSoup, Comment
 
+from utils import get_page_content, remove_last_chars, replace_substrings
 
-def get_codices(
+
+def get_codex_categories(
     content: BeautifulSoup, extra_tags: Optional[List[str]] = None
 ) -> BeautifulSoup:
     """
@@ -103,55 +104,56 @@ def get_codices(
     return content
 
 
-def get_content(url: str, parser: str = "html.parser") -> BeautifulSoup:
-    """
-    Returns a BeautifulSoup object containing the HTML content of the URL.
+def get_codices(game: str, categories: List[str]) -> None:
+    base_url = "https://dragonage.fandom.com/wiki/Codex:_"
 
-    Parameters
-    ----------
-    url : str
-        URL of the page containing the codex entries.
-    parser : str
-        HTML parser to use.
-
-    Returns
-    -------
-    content : BeautifulSoup
-        BeautifulSoup object containing the content of the URL.
-
-    """
-    page = requests.get(url)
-    soup = BeautifulSoup(page.content, parser)
-    # Actual codex content is located under the "mw-parser-output" div
-    content = soup.find(class_="mw-parser-output")
-
-    return content
+    for category in categories:
+        url = f"{base_url}{category}"
+        content = get_page_content(url=url)
+        codices = get_codex_categories(content=content)
+        split_and_write_codices(codices=codices, game=game, category=category)
 
 
-def write_codices(codices: BeautifulSoup, folder: str, page: str) -> None:
-    """
-    Writes the codex entries into a single HTML file.
-
-    Parameters
-    ----------
-    codices : BeautifulSoup
-        BeautifulSoup object containing the codex entries.
-    folder : str
-        The folder you want to write the codex HTML file into.
-    page : str
-        The name you want to give to the HTML file.
-
-    Returns
-    -------
-    None
-
-    """
+def split_and_write_codices(
+    codices: BeautifulSoup,
+    game: str,
+    category: str,
+) -> None:
+    folder = f"{game}/codices"
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    with open(f"{folder}/{page}.html", "w") as f:
-        to_write = str(codices)
-        # If we missed spoiler warnings, notify the user to check the page
-        if "sp_games" in to_write or "sp_txt" in to_write or "sp_banner" in to_write:
-            print("Check", page)
-        f.write(to_write)
+    replacements = [
+        ("<hr />", "<hr>"),
+        ("<hr/>", "<hr>"),
+        ("<br />", "<br>"),
+        ("<br/>", "<br>"),
+        ("h2", "h3"),
+    ]
+
+    idx = 0
+
+    codices_str = str(codices)
+    stuffs = codices_str.rstrip()
+    stuffs = replace_substrings(input_string=stuffs, replacements=replacements)
+    # Codex pages end with a dangling </div>, so get rid of it
+    stuffs = remove_last_chars(input_string=stuffs, last_chars="</div>")
+    # Split each codex entry into its own string
+    stuffs = stuffs.split("<h3>")
+    # The first element is intro stuff, we ignore it
+    for stuff in stuffs[1:]:
+        # Skip over entries that just say "Locked" or "Bugs"
+        if (
+            'class="mw-headline" id="Locked' in stuff
+            or 'class="mw-headline" id="Bugs"' in stuff
+        ):
+            continue
+        to_write = f"<h3>{stuff}".rstrip()
+        # Get rid of terminal rows and dangling </hr>, which are usually
+        # leftovers of removing gameplay-only parts of the codex entry
+        to_write = remove_last_chars(input_string=to_write, last_chars="<hr>")
+        to_write = remove_last_chars(input_string=to_write, last_chars="</hr>")
+        name = f"{game}_{category.split('_')[0].lower()}_{idx}.html"
+        idx += 1
+        with open(f"{folder}/{name}", "w") as f:
+            f.write(to_write)

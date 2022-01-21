@@ -1,9 +1,9 @@
-from get_codices import get_codices, get_content, write_codices
+from codices import get_codices
 
 
 def main():
-    base_url = "https://dragonage.fandom.com/wiki/Codex:_"
-    origins_subpages = [
+    game = "da1"
+    categories = [
         "Creatures",
         "Items",
         "Magic_and_Religion",
@@ -13,14 +13,8 @@ def main():
         "Notes",
         "Quest-Related",
     ]
-    base_folder = "da1"
 
-    for subpage in origins_subpages:
-        url = f"{base_url}{subpage}"
-        folder = f"{base_folder}/{subpage}"
-        content = get_content(url=url)
-        codices = get_codices(content=content)
-        write_codices(codices=codices, folder=folder, page=subpage)
+    get_codices(game=game, categories=categories)
 
 
 if __name__ == "__main__":
