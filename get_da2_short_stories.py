@@ -1,4 +1,4 @@
-from get_codices import get_codices, get_content, write_codices
+from codices import get_codices, get_page_content, write_codices
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
 
     for url, page in zip(story_urls, pages):
         folder = "da2/short_stories"
-        content = get_content(url=url)
+        content = get_page_content(url=url)
         codices = get_codices(content=content)
         write_codices(codices=codices, folder=folder, page=page)
 
