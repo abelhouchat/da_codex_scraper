@@ -9,7 +9,14 @@ Personal project to get all the codex entries from the
  * [requests](https://docs.python-requests.org/en/latest/)
 
 ## Usage
-Run one of the `get_da*_codices.py` files to create a folder containing all 
-the codex entries for that game, with HTML files separated by section. If you 
-want, you can then run `split_codices.py` to split each codex entry into its 
-own HTML file.
+To get all codex entries and snippets of in-game text (okay not all of them, but
+a lot of them), run `get_all.sh`. This script just calls all of the `get_da*.py`
+files, so if you only wanted one type of text from one game in particular, you
+could run the individual Python scripts instead.
+
+The scripts will store each codex entry or piece of text in its own HTML file.
+The files will be stored in folders first by game and then by type of text
+(codex or general text).
+
+The functions that perform all the scraping, formatting, and writing are located
+in the `scraping` directory.
