@@ -10,34 +10,19 @@ from scraping.utils import (
 
 
 def get_texts(
-    base_url: str,
-    full_url: str,
+    url: str,
     game: str,
     content_type: str,
     category: str,
     content_prefix: str,
     header_ids: List[str],
 ):
-    ids_to_skip = [
-        "Locked",
-        "Bugs",
-        "Notes",
-        "Trivia",
-        "Related_texts",
-        "Related_quest",
-        "Related_quests",
-        "See_also",
-        "References",
-        "External_links",
-        "Quests",
-    ]
-
-    all_urls = get_all_pages(base_url, full_url)
+    all_urls = get_all_pages(url=url)
 
     all_texts = []
 
     for url in all_urls:
-        content = get_page_content(url)
+        content = get_page_content(url=url)
         header = content.find("h1", class_="page-header__title").text.strip()
         title = header.replace(content_prefix, "")
         to_remove = [
@@ -57,6 +42,8 @@ def get_texts(
                 header.string.replace_with(title)
                 header["id"] = title.replace(" ", "_")
 
-        all_texts += prep_for_writing(text_content, ids_to_skip)
+        all_texts += prep_for_writing(content=text_content)
 
-    write_entries(all_texts, game, content_type, category)
+    write_entries(
+        entries=all_texts, game=game, content_type=content_type, category=category
+    )

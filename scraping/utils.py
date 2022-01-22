@@ -1,10 +1,29 @@
 import os
 import string
-from collections import OrderedDict
 from typing import List, Optional, Tuple
 
 import requests
 from bs4 import BeautifulSoup, Comment
+
+
+ALPHABET = list(string.ascii_uppercase)
+# We want to ignore parts of the HTML document that might meet all our
+# criteria but are not part of the actual codex. The sections that typically
+# do this for codex entries are "Locked" and "Bugs" sections."
+IDS_TO_SKIP = [
+    "Locked",
+    "Bugs",
+    "Notes",
+    "Trivia",
+    "Related_texts",
+    "Related_quest",
+    "Related_quests",
+    "See_also",
+    "References",
+    "External_links",
+    "Quests",
+]
+ROOT_URL = "https://dragonage.fandom.com"
 
 
 def check_letter_existence(letter: str, url: str) -> bool:
@@ -32,6 +51,31 @@ def check_letter_existence(letter: str, url: str) -> bool:
     return letter_header.text.strip() == letter.upper()
 
 
+def get_all_pages(url: str) -> List[str]:
+    """
+    Get all pages from the Wiki that are categorized alphabetically.
+
+    Parameters
+    ----------
+    url : str
+        The URL of the Category page.
+
+    Returns
+    -------
+    all_urls : List[str]
+        A List of all urls listed in the Category page.
+
+    """
+    alphabetical_links = get_alphabetized_links(url=url)
+
+    all_urls = []
+
+    for link in alphabetical_links:
+        all_urls += get_letter_pages(url=link)
+
+    return all_urls
+
+
 def get_alphabetized_links(url: str) -> List[str]:
     """
     Get all Wiki Category pages that are themselves subcategories categorized by
@@ -49,26 +93,23 @@ def get_alphabetized_links(url: str) -> List[str]:
         corresponding to its letter.
 
     """
-    alphabet = list(string.ascii_uppercase)
-    all_alphabetized_suburls = [f"{url}?from={letter}" for letter in alphabet]
+    all_alphabetized_suburls = [f"{url}?from={letter}" for letter in ALPHABET]
     actual_alphabetized_suburls = []
 
-    for letter, suburl in zip(alphabet, all_alphabetized_suburls):
-        if check_letter_existence(letter, suburl):
+    for letter, suburl in zip(ALPHABET, all_alphabetized_suburls):
+        if check_letter_existence(letter=letter, url=suburl):
             actual_alphabetized_suburls.append(suburl)
 
     return actual_alphabetized_suburls
 
 
-def get_letter_pages(base_url: str, letter_url: str) -> List[str]:
+def get_letter_pages(url: str) -> List[str]:
     """
     Get all pages that fall under a given letter category.
 
     Parameters
     ----------
-    base_url : str
-        The base URL for the Wiki.
-    letter_url : str
+    url : str
         The URL for the letter you want to get pages for
 
     Returns
@@ -77,7 +118,7 @@ def get_letter_pages(base_url: str, letter_url: str) -> List[str]:
         List of all URLs under `letter_url`.
 
     """
-    page = requests.get(letter_url)
+    page = requests.get(url)
     soup = BeautifulSoup(page.text, "html.parser")
 
     letter_pages = []
@@ -86,9 +127,7 @@ def get_letter_pages(base_url: str, letter_url: str) -> List[str]:
         suburl = str(link.get("href"))
         # Don't want suburls that just point to other Category pages.
         if "wiki/Category:" not in suburl:
-            letter_pages.append(f"{base_url}{suburl}")
-
-    letter_pages = list(OrderedDict.fromkeys(letter_pages))
+            letter_pages.append(f"{ROOT_URL}{suburl}")
 
     return letter_pages
 
@@ -114,17 +153,6 @@ def get_page_content(url: str, parser: str = "html.parser") -> BeautifulSoup:
     content = BeautifulSoup(page.content, parser)
 
     return content
-
-
-def get_all_pages(base_url: str, full_url: str) -> List[str]:
-    alphabetical_links = get_alphabetized_links(full_url)
-
-    all_urls = []
-
-    for link in alphabetical_links:
-        all_urls += get_letter_pages(base_url, link)
-
-    return all_urls
 
 
 def get_textual_content(
@@ -228,6 +256,59 @@ def get_textual_content(
     return content
 
 
+def prep_for_writing(content: BeautifulSoup) -> List[str]:
+    """
+    Get entries in a form ready to be written to a file.
+
+    Parameters
+    ----------
+    content : BeautifulSoup
+        The entry to prep for writing.
+
+    Returns
+    -------
+    entries_to_write : List[str]
+        List of the entries as strings.
+
+    """
+    entries_to_write = []
+
+    replacements = [
+        ("<hr />", "<hr>"),
+        ("<hr/>", "<hr>"),
+        ("<br />", "<br>"),
+        ("<br/>", "<br>"),
+        ("h2", "h3"),
+    ]
+
+    content_str = str(content).rstrip()
+    content_str = replace_substrings(
+        input_string=content_str, replacements=replacements
+    )
+    # Some pages end with a dangling </div>, so get rid of it
+    content_str = remove_last_chars(input_string=content_str, last_chars="</div>")
+    # Split each codex entry into its own string
+    content_split = content_str.split("<h3>")
+    # The first element is intro stuff, we ignore it
+    for content_piece in content_split[1:]:
+        skip = False
+        for id in IDS_TO_SKIP:
+            if f'class="mw-headline" id="{id}' in content_piece:
+                skip = True
+        if skip:
+            continue
+
+        to_write = f"<h3>{content_piece}".rstrip()
+        # Get rid of terminal rows and dangling </hr>, which are usually
+        # leftovers of removing gameplay-only parts of the codex entry
+        to_write = remove_last_chars(input_string=to_write, last_chars="<hr>")
+        to_write = remove_last_chars(input_string=to_write, last_chars="</hr>")
+
+        entries_to_write.append(to_write)
+
+    return entries_to_write
+
+
 def remove_last_chars(input_string: str, last_chars: str) -> str:
     """
     If the last characters in a string are known to be certain characters,
@@ -279,49 +360,28 @@ def replace_substrings(input_string: str, replacements: List[Tuple[str]]) -> str
     return input_string
 
 
-def prep_for_writing(
-    content: BeautifulSoup,
-    ids_to_skip: Optional[List[str]] = None,
-) -> List[str]:
-    entries_to_write = []
+def write_entries(
+    entries: List[str], game: str, content_type: str, category: str
+) -> None:
+    """
+    Write entries to files.
 
-    replacements = [
-        ("<hr />", "<hr>"),
-        ("<hr/>", "<hr>"),
-        ("<br />", "<br>"),
-        ("<br/>", "<br>"),
-        ("h2", "h3"),
-    ]
+    Parameters
+    ----------
+    entries : List[str]
+        List of entries to write.
+    game : str
+        The game that the entries come from.
+    content_type : str
+        The type of entries that are to be written.
+    category : str
+        The category that the entries fall under.
 
-    content_str = str(content).rstrip()
-    content_str = replace_substrings(
-        input_string=content_str, replacements=replacements
-    )
-    # Some pages end with a dangling </div>, so get rid of it
-    content_str = remove_last_chars(input_string=content_str, last_chars="</div>")
-    # Split each codex entry into its own string
-    content_split = content_str.split("<h3>")
-    # The first element is intro stuff, we ignore it
-    for content_piece in content_split[1:]:
-        skip = False
-        for id in ids_to_skip:
-            if f'class="mw-headline" id="{id}' in content_piece:
-                skip = True
-        if skip:
-            continue
+    Returns
+    -------
+    None
 
-        to_write = f"<h3>{content_piece}".rstrip()
-        # Get rid of terminal rows and dangling </hr>, which are usually
-        # leftovers of removing gameplay-only parts of the codex entry
-        to_write = remove_last_chars(input_string=to_write, last_chars="<hr>")
-        to_write = remove_last_chars(input_string=to_write, last_chars="</hr>")
-
-        entries_to_write.append(to_write)
-
-    return entries_to_write
-
-
-def write_entries(entries: List[str], game: str, content_type: str, category: str):
+    """
     folder = f"{game}/{content_type}"
     if not os.path.exists(folder):
         os.makedirs(folder)
